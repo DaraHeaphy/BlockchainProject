@@ -2,11 +2,11 @@ const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
 describe("TicketToken", function () {
-  let ticketToken, owner, vendor, buyer, other;
+  let ticketToken, owner, vendor, buyer;
   const ticketPrice = ethers.parseEther("0.01");
 
   beforeEach(async function () {
-    [owner, vendor, buyer, other] = await ethers.getSigners();
+    [owner, vendor, buyer] = await ethers.getSigners();
     const TicketToken = await ethers.getContractFactory("TicketToken", owner);
     ticketToken = await TicketToken.deploy(ticketPrice, vendor.address);
     await ticketToken.waitForDeployment();
