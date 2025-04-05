@@ -17,11 +17,6 @@ contract TicketToken is ERC20, Ownable {
         vendor = _vendor;
     }
 
-    /**
-     * @notice Purchase tickets by sending SETH (native cryptocurrency on Sepolia)
-     * @dev The function calculates the number of tickets based on msg.value.
-     *      If excess funds are sent (not enough for a whole ticket), they are refunded.
-     */
     function purchaseTicket() external payable {
         require(msg.value >= ticketPrice, "Insufficient funds for a ticket");
 
