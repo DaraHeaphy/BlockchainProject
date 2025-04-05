@@ -9,13 +9,10 @@ async function main() {
   const ticketPrice = ethers.parseEther("0.01");
   const vendorAddress = process.env.VENDOR_ADDRESS;
 
-  // Deploy the contract
   const ticketToken = await TicketToken.deploy(ticketPrice, vendorAddress);
 
-  // Log the deployment transaction hash for debugging
   console.log("Deployment transaction hash:", ticketToken.deploymentTransaction.hash);
 
-  // Wait for the contract to be mined
   await ticketToken.waitForDeployment();
 
   console.log("TicketToken deployed to:", ticketToken.target);
