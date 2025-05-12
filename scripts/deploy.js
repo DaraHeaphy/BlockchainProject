@@ -2,19 +2,28 @@ const { ethers } = require("hardhat");
 require("dotenv").config();
 
 async function main() {
-  console.log("Deploying contracts with the account:", (await ethers.getSigners())[0].address);
-  console.log("Vendor Address from .env:", process.env.VENDOR_ADDRESS);
+  const [deployer] = await ethers.getSigners();
+  console.log("Deploying contracts with the account:", deployer.address);
+
+  const vendorAddress   = process.env.VENDOR_ADDRESS;
+  const ticketPriceEth  = process.env.TICKET_PRICE_ETH   || "0.001";
+  const initialSupply   = parseInt(process.env.INITIAL_SUPPLY || "1000", 10);
+
+  console.log("Vendor address:    ", vendorAddress);
+  console.log("Ticket price (ETH):", ticketPriceEth);
+  console.log("Initial supply:    ", initialSupply);
+
+  const ticketPrice = ethers.parseEther(ticketPriceEth);
 
   const TicketToken = await ethers.getContractFactory("TicketToken");
-  const ticketPrice = ethers.parseEther("0.01");
-  const vendorAddress = process.env.VENDOR_ADDRESS;
+  const ticketToken = await TicketToken.deploy(
+    ticketPrice,
+    vendorAddress,
+    initialSupply
+  );
 
-  const ticketToken = await TicketToken.deploy(ticketPrice, vendorAddress);
-
-  console.log("Deployment transaction hash:", ticketToken.deploymentTransaction.hash);
-
+  console.log("Deployment tx hash:", ticketToken.deploymentTransaction().hash);
   await ticketToken.waitForDeployment();
-
   console.log("TicketToken deployed to:", ticketToken.target);
 }
 

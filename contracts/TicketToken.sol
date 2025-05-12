@@ -7,32 +7,37 @@ contract TicketToken is ERC20, Ownable {
     uint256 public ticketPrice;
     address public vendor;
 
-    event TicketPurchased(address indexed buyer, uint256 amountUsed, uint256 ticketsMinted);
+    event TicketPurchased(address indexed buyer, uint256 amountUsed, uint256 ticketsTransferred);
 
-    constructor(uint256 _ticketPrice, address _vendor) 
+    constructor(
+        uint256 _ticketPrice,
+        address _vendor,
+        uint256 _initialSupply
+    )
         ERC20("TicketToken", "TKT")
         Ownable(msg.sender)
     {
         ticketPrice = _ticketPrice;
-        vendor = _vendor;
+        vendor      = _vendor;
+        _mint(address(this), _initialSupply);
     }
 
     function purchaseTicket() external payable {
-        require(msg.value >= ticketPrice, "Insufficient funds for a ticket");
+        require(msg.value >= ticketPrice, "Insufficient funds");
+        uint256 ticketsToBuy = msg.value / ticketPrice;
+        require(ticketsToBuy > 0, "Need at least one ticket");
+        require(balanceOf(address(this)) >= ticketsToBuy, "Sold out");
 
-        uint256 ticketsToMint = msg.value / ticketPrice;
-        require(ticketsToMint > 0, "Not enough funds for one ticket");
+        uint256 used = ticketsToBuy * ticketPrice;
+        // refund any extra
+        if (msg.value > used) payable(msg.sender).transfer(msg.value - used);
 
-        uint256 usedAmount = ticketsToMint * ticketPrice;
-        uint256 remainder = msg.value - usedAmount;
-        if (remainder > 0) {
-            payable(msg.sender).transfer(remainder);
-        }
+        // transfer tokens from pool to buyer
+        _transfer(address(this), msg.sender, ticketsToBuy);
 
-        _mint(msg.sender, ticketsToMint);
+        // forward funds
+        payable(vendor).transfer(used);
 
-        payable(vendor).transfer(usedAmount);
-
-        emit TicketPurchased(msg.sender, usedAmount, ticketsToMint);
+        emit TicketPurchased(msg.sender, used, ticketsToBuy);
     }
 }
