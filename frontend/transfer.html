@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="contract-address" content="0x024DC652b30D7de500F3C771fEFF47dc0Fe0cad4" />
+  <title>Return Tickets</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <script src="js/abi.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.5/dist/ethers.umd.min.js"></script>
+  <script type="module" src="js/config.js"></script>
+  <script type="module" src="js/transfer.js"></script>
+  <script type="module" src="js/main.js"></script>
+</head>
+<body>
+  <header>
+    <a href="index.html" class="back">← Home</a>
+    <h1>Return Tickets</h1>
+  </header>
+  <div class="section">
+    <label for="returnAmount">Tickets to return:</label>
+    <input type="number" id="returnAmount" min="1" value="1" />
+    <button id="returnBtn">Return</button>
+    <pre id="transferStatus"></pre>
+  </div>
+</body>
+</html>
