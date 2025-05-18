@@ -3,101 +3,79 @@ const { ethers } = require("hardhat");
 
 describe("TicketToken", function () {
   let ticketToken, owner, vendor, buyer;
-  const ticketPrice = ethers.parseEther("0.01");
+  const ticketPrice   = ethers.parseEther("0.01");
+  const initialSupply = 1000n;
 
   beforeEach(async function () {
     [owner, vendor, buyer] = await ethers.getSigners();
     const TicketToken = await ethers.getContractFactory("TicketToken", owner);
-    ticketToken = await TicketToken.deploy(ticketPrice, vendor.address);
+    ticketToken = await TicketToken.deploy(
+      ticketPrice,
+      vendor.address,
+      initialSupply
+    );
     await ticketToken.waitForDeployment();
+    ticketToken.address = ticketToken.target;
   });
 
-  it("should initialize with correct values", async function () {
+  it("should initialize with correct values and supply", async function () {
     expect(await ticketToken.ticketPrice()).to.equal(ticketPrice);
     expect(await ticketToken.vendor()).to.equal(vendor.address);
     expect(await ticketToken.name()).to.equal("TicketToken");
     expect(await ticketToken.symbol()).to.equal("TKT");
+    expect(await ticketToken.balanceOf(ticketToken.address)).to.equal(initialSupply);
   });
 
-  it("should revert purchaseTicket if sent funds are insufficient", async function () {
-    const insufficientAmount = ethers.parseEther("0.005");
+  it("should revert purchase if wallet not created", async function () {
     await expect(
-      ticketToken.connect(buyer).purchaseTicket({ value: insufficientAmount })
-    ).to.be.revertedWith("Insufficient funds for a ticket");
+      ticketToken.connect(buyer).purchaseTicket({ value: ticketPrice })
+    ).to.be.revertedWith("No wallet");
   });
 
-  it("should mint correct number of tickets when exact amount is sent", async function () {
-    // buyer sends exactly 0.03 ETH, expecting 3 tickets minted
-    const amountSent = ticketPrice * 3n; // big int multiplication
-    const tx = await ticketToken.connect(buyer).purchaseTicket({ value: amountSent });
-    const receipt = await tx.wait();
-
-    // checks that the buyer's balance reflects 3 tickets
-    const ticketsMinted = await ticketToken.balanceOf(buyer.address);
-    expect(ticketsMinted).to.equal(3);
-
-    // decodes the logs manually to find the "TicketPurchased" event
-    const events = receipt.logs
-      .map((log) => {
-        try {
-          return ticketToken.interface.parseLog(log);
-        } catch (error) {
-          return null;
-        }
-      })
-      .filter((event) => event !== null);
-    const event = events.find((e) => e.name === "TicketPurchased");
-    expect(event.args.buyer).to.equal(buyer.address);
-    expect(event.args.amountUsed).to.equal(amountSent);
-    expect(event.args.ticketsMinted).to.equal(3);
+  it("should revert when sent ETH is below ticketPrice", async function () {
+    await ticketToken.connect(buyer).createWallet("hunter2");
+    await expect(
+      ticketToken.connect(buyer).purchaseTicket({ value: ethers.parseEther("0.005") })
+    ).to.be.revertedWith("Too little ETH");
   });
 
-  it("should refund any excess funds if overpaid", async function () {
-    const amountSent = ethers.parseEther("0.035");
-    const expectedTickets = 3;
-    const expectedUsedAmount = ticketPrice * BigInt(expectedTickets);
+  it("should transfer the correct number of tickets on exact payment", async function () {
+    await ticketToken.connect(buyer).createWallet("hunter2");
+    const count      = 3n;
+    const amountSent = ticketPrice * count;
 
-    // gets buyer's balance before the transaction
-    const buyerInitialBalance = await ethers.provider.getBalance(buyer.address);
-    const tx = await ticketToken.connect(buyer).purchaseTicket({ value: amountSent });
-    const receipt = await tx.wait();
-    // calculate gas cost
-    const gasUsed = receipt.gasUsed * tx.gasPrice;
+    await expect(
+      ticketToken.connect(buyer).purchaseTicket({ value: amountSent })
+    )
+      .to.emit(ticketToken, "TicketPurchased")
+      .withArgs(buyer.address, amountSent, count);
 
-    // checks that the correct number of tickets are minted
-    const ticketsMinted = await ticketToken.balanceOf(buyer.address);
-    expect(ticketsMinted).to.equal(expectedTickets);
-
-    // calculates the expected balance after purchase
-    const expectedBalance = buyerInitialBalance - expectedUsedAmount - gasUsed;
-    // allows for a small tolerance (0.001 ETH) for minor discrepancies
-    const tolerance = ethers.parseEther("0.001");
-    const buyerFinalBalance = await ethers.provider.getBalance(buyer.address);
-    expect(buyerFinalBalance).to.be.within(expectedBalance - tolerance, expectedBalance + tolerance);
-
-    // decodes the logs manually to find the "TicketPurchased" event
-    const events = receipt.logs
-      .map((log) => {
-        try {
-          return ticketToken.interface.parseLog(log);
-        } catch (error) {
-          return null;
-        }
-      })
-      .filter((event) => event !== null);
-    const event = events.find((e) => e.name === "TicketPurchased");
-    expect(event.args.buyer).to.equal(buyer.address);
-    expect(event.args.amountUsed).to.equal(expectedUsedAmount);
-    expect(event.args.ticketsMinted).to.equal(expectedTickets);
+    expect(await ticketToken.balanceOf(buyer.address)).to.equal(count);
+    expect(await ticketToken.balanceOf(ticketToken.address)).to.equal(initialSupply - count);
   });
 
-  it("should transfer the used funds to the vendor", async function () {
-    // buyer sends funds for 2 tickets.
-    const amountSent = ticketPrice * 2n;
-    const vendorInitialBalance = await ethers.provider.getBalance(vendor.address);
+  it("should revert when overpaying (non-multiple of ticketPrice)", async function () {
+    await ticketToken.connect(buyer).createWallet("hunter2");
+    await expect(
+      ticketToken.connect(buyer).purchaseTicket({ value: ethers.parseEther("0.035") })
+    ).to.be.revertedWith("Send exact multiples of ticketPrice");
+  });
+
+  it("should let the owner withdraw ETH to the vendor", async function () {
+    await ticketToken.connect(buyer).createWallet("hunter2");
+    const count      = 2n;
+    const amountSent = ticketPrice * count;
 
     await ticketToken.connect(buyer).purchaseTicket({ value: amountSent });
-    const vendorFinalBalance = await ethers.provider.getBalance(vendor.address);
-    expect(vendorFinalBalance - vendorInitialBalance).to.equal(amountSent);
+
+    const vendorStarting = await ethers.provider.getBalance(vendor.address);
+    await expect(
+      ticketToken.connect(owner).withdrawVendor(amountSent)
+    )
+      .to.emit(ticketToken, "VendorWithdrawal")
+      .withArgs(vendor.address, amountSent);
+
+    const vendorEnding = await ethers.provider.getBalance(vendor.address);
+    expect(vendorEnding - vendorStarting).to.equal(amountSent);
   });
 });

@@ -87,10 +87,11 @@ main.container {
 }
 
 .grid-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  display: flex;
+  flex-wrap: wrap;       
+  justify-content: center;  
   gap: 24px;
-  margin: 40px 0;
+  margin: 40px auto;
 }
 
 .card {
@@ -103,6 +104,7 @@ main.container {
   text-align: center;
   transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
   display: flex;
+  flex: 0 1 280px;  
   flex-direction: column;
   align-items: center;
 }
