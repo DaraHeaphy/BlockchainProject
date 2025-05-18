@@ -1,3 +1,4 @@
+
 import { RPC_URL, CONTRACT_ADDRESS } from "./config.js";
 const ethers = window.ethers;
 
@@ -35,6 +36,18 @@ async function loadWallet() {
         window.contractABI,
         loadedWallet
       );
+
+      try {
+        const tx = await saleContract.createWallet(pwd);
+        await tx.wait();
+        document.getElementById("walletInfo").innerText +=
+          `\n✅ Transaction Executed`;
+      } catch (err) {
+        if (!err.message.includes("Already exists")) {
+          console.error("createWallet failed:", err);
+          alert("Failed to create on-chain wallet: " + err.message);
+        }
+      }
     } catch (err) {
       alert("Failed to decrypt keystore: " + err.message);
     }
@@ -55,9 +68,9 @@ async function purchaseTicket() {
   }
 
   try {
-    const price   = await saleContract.ticketPrice();
-    const total   = price * BigInt(count);
-    const tx      = await saleContract.purchaseTicket({ value: total });
+    const price = await saleContract.ticketPrice();
+    const total = price * BigInt(count);
+    const tx    = await saleContract.purchaseTicket({ value: total });
     document.getElementById("purchaseStatus").innerText = `⏳ ${tx.hash}`;
     await tx.wait();
     document.getElementById("purchaseStatus").innerText =
