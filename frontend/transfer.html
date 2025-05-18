@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="contract-address" content="0x024DC652b30D7de500F3C771fEFF47dc0Fe0cad4" />
-  <title>Return Tickets</title>
+  <meta name="contract-address" content="0x1ac131aE1a756687F11B58B891146edb52ABDDeB" />
+  <meta name="rpc-url" content="https://sepolia.infura.io/v3/https://sepolia.infura.io/v3/74ac8b5828754e85b0bcdbab511ba892" />
+  <title>Transfer Tickets</title>
   <link rel="stylesheet" href="css/styles.css" />
   <script src="js/abi.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.5/dist/ethers.umd.min.js"></script>
@@ -15,12 +16,33 @@
 <body>
   <header>
     <a href="index.html" class="back">← Home</a>
-    <h1>Return Tickets</h1>
+    <h1>Transfer Tickets</h1>
   </header>
   <div class="section">
-    <label for="returnAmount">Tickets to return:</label>
-    <input type="number" id="returnAmount" min="1" value="1" />
-    <button id="returnBtn">Return</button>
+    <label for="keystoreFileTransfer">Keystore JSON:</label>
+    <input type="file" id="keystoreFileTransfer" accept=".json" />
+
+    <label for="walletPasswordTransfer">Wallet Password:</label>
+    <input type="password" id="walletPasswordTransfer" placeholder="Enter your password" />
+
+    <button id="loadTransferWalletBtn">Load Wallet</button>
+    <pre id="transferWalletInfo"></pre>
+
+    <hr />
+
+    <div id="vendorSection" style="display:none; margin-bottom:1em;">
+      <strong>Vendor Address:</strong>
+      <code id="vendorAddressDisplay"></code>
+      <button id="returnToVendorBtn" disabled>Return to Vendor</button>
+    </div>
+
+    <label for="transferAmount">Tickets to send:</label>
+    <input type="number" id="transferAmount" min="1" value="1" disabled />
+
+    <label for="recipientAddress">Recipient Address:</label>
+    <input type="text" id="recipientAddress" placeholder="0xABC123…" disabled />
+
+    <button id="transferBtn" disabled>Transfer</button>
     <pre id="transferStatus"></pre>
   </div>
 </body>

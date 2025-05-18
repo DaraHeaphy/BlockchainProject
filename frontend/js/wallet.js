@@ -1,4 +1,3 @@
-// uses global window.ethers
 const ethers = window.ethers;
 
 let localWallet, encryptedJson;

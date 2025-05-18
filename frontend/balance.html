@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="contract-address" content="0x024DC652b30D7de500F3C771fEFF47dc0Fe0cad4" />
+  <meta name="contract-address" content="0x1ac131aE1a756687F11B58B891146edb52ABDDeB" />
+  <meta name="rpc-url" content="https://sepolia.infura.io/v3/https://sepolia.infura.io/v3/74ac8b5828754e85b0bcdbab511ba892" />
   <title>Balance Check</title>
   <link rel="stylesheet" href="css/styles.css" />
   <script src="js/abi.js"></script>
@@ -18,9 +19,22 @@
     <h1>Balance Check</h1>
   </header>
   <div class="section">
+    <h2>Manual Address Lookup</h2>
     <label for="manualAddress">Wallet Address:</label>
     <input type="text" id="manualAddress" placeholder="0xABC123…" />
     <button id="checkBalanceBtn">Check Balances</button>
+
+    <hr />
+
+    <h2>Keystore Upload</h2>
+    <label for="keystoreFileBalance">Keystore JSON:</label>
+    <input type="file" id="keystoreFileBalance" accept=".json" />
+
+    <label for="walletPasswordBalance">Wallet Password:</label>
+    <input type="password" id="walletPasswordBalance" placeholder="Enter your password" />
+
+    <button id="loadBalanceWalletBtn">Load & Check Wallet</button>
+
     <pre id="balances"></pre>
   </div>
 </body>

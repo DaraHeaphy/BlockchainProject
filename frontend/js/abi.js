@@ -184,7 +184,7 @@ window.contractABI = [
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "amountUsed",
+          "name": "amountPaid",
           "type": "uint256"
         },
         {
@@ -195,6 +195,25 @@ window.contractABI = [
         }
       ],
       "name": "TicketPurchased",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "ticketsReturned",
+          "type": "uint256"
+        }
+      ],
+      "name": "TicketReturned",
       "type": "event"
     },
     {
@@ -220,6 +239,38 @@ window.contractABI = [
         }
       ],
       "name": "Transfer",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "vendorAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "VendorWithdrawal",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        }
+      ],
+      "name": "WalletCreated",
       "type": "event"
     },
     {
@@ -290,6 +341,19 @@ window.contractABI = [
       "type": "function"
     },
     {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "password",
+          "type": "string"
+        }
+      ],
+      "name": "createWallet",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
       "inputs": [],
       "name": "decimals",
       "outputs": [
@@ -338,6 +402,19 @@ window.contractABI = [
     {
       "inputs": [],
       "name": "renounceOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "count",
+          "type": "uint256"
+        }
+      ],
+      "name": "returnTickets",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -462,22 +539,15 @@ window.contractABI = [
     },
     {
       "inputs": [
-        { "internalType": "string", "name": "password", "type": "string" }
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
       ],
-      "name": "createWallet",
+      "name": "withdrawVendor",
       "outputs": [],
       "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        { "internalType": "string", "name": "password", "type": "string" }
-      ],
-      "name": "checkBalance",
-      "outputs": [
-        { "internalType": "uint256", "name": "", "type": "uint256" }
-      ],
-      "stateMutability": "view",
       "type": "function"
     }
   ];

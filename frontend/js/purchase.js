@@ -1,50 +1,70 @@
+import { RPC_URL, CONTRACT_ADDRESS } from "./config.js";
 const ethers = window.ethers;
-import { CONTRACT_ADDRESS } from "./config.js";
 
-let purchaseContract, signer;
+let saleContract;
+let loadedWallet;
 
-export async function connectPurchase(abi, addressOutputId, btnEnableId) {
-  if (!window.ethereum) {
-    return alert("MetaMask not installed");
+async function loadWallet() {
+  const fileInput = document.getElementById("keystoreFile");
+  const pwdInput  = document.getElementById("walletPassword");
+
+  if (!fileInput.files.length) {
+    return alert("Please select your keystore JSON file.");
   }
-  const provider = new ethers.BrowserProvider(window.ethereum);
-  await provider.send("eth_requestAccounts", []);
-  signer = await provider.getSigner();
-  purchaseContract = new ethers.Contract(
-    CONTRACT_ADDRESS,
-    abi,
-    signer
-  );
+  const file = fileInput.files[0];
+  const pwd  = pwdInput.value;
+  if (!pwd) {
+    return alert("Enter your wallet password.");
+  }
 
-  const addr = await signer.getAddress();
-  document.getElementById(addressOutputId).innerText = addr;
-  document.getElementById(btnEnableId).disabled = false;
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    try {
+      const json = e.target.result;
+      loadedWallet = await ethers.Wallet.fromEncryptedJson(json, pwd);
+      const provider = new ethers.JsonRpcProvider(RPC_URL);
+      loadedWallet = loadedWallet.connect(provider);
+
+      document.getElementById("walletInfo").innerText =
+        `✅ Loaded wallet: ${loadedWallet.address}`;
+      document.getElementById("purchaseAmount").disabled = false;
+      document.getElementById("purchaseBtn").disabled = false;
+
+      saleContract = new ethers.Contract(
+        CONTRACT_ADDRESS,
+        window.contractABI,
+        loadedWallet
+      );
+    } catch (err) {
+      alert("Failed to decrypt keystore: " + err.message);
+    }
+  };
+  reader.readAsText(file);
 }
 
-export async function purchaseTicket(countInputId, statusId) {
-  if (!purchaseContract) {
-    return alert("Please connect your wallet first.");
+async function purchaseTicket() {
+  if (!saleContract) {
+    return alert("Load your wallet first.");
   }
-
   const count = parseInt(
-    document.getElementById(countInputId).value,
+    document.getElementById("purchaseAmount").value,
     10
   );
   if (isNaN(count) || count < 1 || count > 10) {
-    return alert("Please enter a number of tickets between 1 and 10");
+    return alert("Enter a number of tickets between 1 and 10.");
   }
 
   try {
-    const pricePer = await purchaseContract.ticketPrice();
-    const totalCost = pricePer * BigInt(count);
-
-    const tx = await purchaseContract.purchaseTicket({ value: totalCost });
-    document.getElementById(statusId).innerText = `⏳ Sending… ${tx.hash}`;
+    const price   = await saleContract.ticketPrice();
+    const total   = price * BigInt(count);
+    const tx      = await saleContract.purchaseTicket({ value: total });
+    document.getElementById("purchaseStatus").innerText = `⏳ ${tx.hash}`;
     await tx.wait();
-    document.getElementById(statusId).innerText =
+    document.getElementById("purchaseStatus").innerText =
       `✅ Purchased ${count} ticket(s)!`;
-  } catch (e) {
-    const reason = e.data?.message || e.reason || e.message;
-    alert(`Purchase error: ${reason}`);
+  } catch (err) {
+    alert("Purchase failed: " + (err.reason || err.message));
   }
 }
+
+export { loadWallet, purchaseTicket };

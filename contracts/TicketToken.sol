@@ -4,8 +4,8 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract TicketToken is ERC20, Ownable {
-    uint256 public ticketPrice;
-    address public vendor;
+    uint256 public immutable ticketPrice;
+    address public immutable vendor;
 
     struct Wallet {
         bytes32 passwordHash;
@@ -14,68 +14,61 @@ contract TicketToken is ERC20, Ownable {
     mapping(address => Wallet) private wallets;
 
     event WalletCreated(address indexed user);
-    event TicketPurchased(address indexed buyer, uint256 amountUsed, uint256 ticketsTransferred);
-    event TicketReturned(address indexed user, uint256 ticketsReturned, uint256 refundAmount);
+    event TicketPurchased(address indexed buyer, uint256 amountPaid, uint256 ticketsTransferred);
+    event TicketReturned(address indexed user, uint256 ticketsReturned);
     event VendorWithdrawal(address indexed vendorAddress, uint256 amount);
 
     constructor(
         uint256 _ticketPrice,
         address _vendor,
         uint256 _initialSupply
-    ) ERC20("TicketToken", "TKT") 
-      Ownable(msg.sender)
+    )
+        ERC20("TicketToken", "TKT")
+        Ownable(msg.sender)
     {
-        require(_vendor != address(0), "Invalid vendor address");
+        require(_ticketPrice > 0, "ticketPrice must be > 0");
+        require(_vendor      != address(0), "Invalid vendor");
+        require(_initialSupply > 0, "initialSupply must be > 0");
+
         ticketPrice = _ticketPrice;
-        vendor = _vendor;
+        vendor      = _vendor;
         _mint(address(this), _initialSupply);
     }
 
     function createWallet(string calldata password) external {
-        require(!wallets[msg.sender].exists, "Wallet already exists");
+        require(!wallets[msg.sender].exists, "Already exists");
         wallets[msg.sender] = Wallet({
             passwordHash: keccak256(abi.encodePacked(password)),
-            exists: true
+            exists:       true
         });
         emit WalletCreated(msg.sender);
     }
 
     function purchaseTicket() external payable {
-        require(wallets[msg.sender].exists, "Wallet does not exist");
-        require(msg.value >= ticketPrice, "Insufficient funds");
+        require(wallets[msg.sender].exists, "No wallet");
+        require(msg.value >= ticketPrice, "Too little ETH");
 
-        uint256 ticketsToBuy = msg.value / ticketPrice;
-        require(ticketsToBuy > 0, "Need at least one ticket");
-        require(balanceOf(address(this)) >= ticketsToBuy, "Sold out");
+        uint256 count = msg.value / ticketPrice;
+        require(count > 0, "Must buy >= 1 ticket");
+        require(msg.value % ticketPrice == 0, "Send exact multiples of ticketPrice");
+        require(balanceOf(address(this)) >= count, "Sold out");
 
-        uint256 used = ticketsToBuy * ticketPrice;
-        uint256 refund = msg.value - used;
-        if (refund > 0) {
-            (bool ok, ) = payable(msg.sender).call{ value: refund }("");
-            require(ok, "Refund failed");
-        }
-
-        _transfer(address(this), msg.sender, ticketsToBuy);
-        emit TicketPurchased(msg.sender, used, ticketsToBuy);
+        _transfer(address(this), msg.sender, count);
+        emit TicketPurchased(msg.sender, msg.value, count);
     }
 
     function returnTickets(uint256 count) external {
-        require(wallets[msg.sender].exists, "Wallet does not exist");
-        require(balanceOf(msg.sender) >= count, "Not enough tickets to return");
+        require(wallets[msg.sender].exists, "No wallet");
+        require(balanceOf(msg.sender) >= count,     "Not enough tickets");
 
-        uint256 refundAmount = ticketPrice * count;
         _transfer(msg.sender, address(this), count);
-
-        (bool ok, ) = payable(msg.sender).call{ value: refundAmount }("");
-        require(ok, "Refund transfer failed");
-
-        emit TicketReturned(msg.sender, count, refundAmount);
+        emit TicketReturned(msg.sender, count);
     }
 
     function withdrawVendor(uint256 amount) external onlyOwner {
-        require(address(this).balance >= amount, "Insufficient contract balance");
+        require(address(this).balance >= amount, "No funds");
         (bool ok, ) = payable(vendor).call{ value: amount }("");
-        require(ok, "Vendor withdrawal failed");
+        require(ok, "Withdraw failed");
         emit VendorWithdrawal(vendor, amount);
     }
 }

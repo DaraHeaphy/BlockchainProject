@@ -12,10 +12,8 @@
   --transition: 0.3s ease;
 }
 
-/* Reset */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* Base */
 body {
   background: var(--bg);
   color: var(--text);
@@ -24,18 +22,16 @@ body {
   padding: 20px;
 }
 
-/* Logo */
 header {
   text-align: center;
   margin-bottom: 30px;
 }
 header .logo {
-  font-family: 'Pacifico', cursive;
+  font-family: Arial, sans-serif;
   font-size: 3rem;
   color: var(--accent-light);
 }
 
-/* Home Page Cards */
 .home-nav {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -68,7 +64,6 @@ header .logo {
   line-height: 1.4;
 }
 
-/* Feature Pages Back Button */
 header .back {
   display: inline-block;
   background: var(--home-btn);
@@ -84,7 +79,6 @@ header .back:hover {
   transform: translateY(-1px);
 }
 
-/* Section Container */
 .section {
   background: var(--surface);
   padding: 30px;
@@ -95,7 +89,6 @@ header .back:hover {
   border: 1px solid rgba(255,255,255,0.08);
 }
 
-/* Form Elements */
 label {
   display: block;
   margin-bottom: 8px;
@@ -138,7 +131,6 @@ button:disabled {
   opacity: 0.6;
 }
 
-/* Status Output */
 pre {
   background: var(--bg);
   border: 1px solid var(--surface-alt);
@@ -149,7 +141,6 @@ pre {
   word-wrap: break-word;
 }
 
-/* Responsive */
 @media (max-width: 640px) {
   .home-nav { grid-template-columns: 1fr; }
   header .logo { font-size: 2.5rem; }

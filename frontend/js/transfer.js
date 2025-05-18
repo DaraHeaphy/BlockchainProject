@@ -1,50 +1,97 @@
+import { RPC_URL, CONTRACT_ADDRESS } from "./config.js";
 const ethers = window.ethers;
-import { CONTRACT_ADDRESS } from "./config.js";
 
 let transferContract;
+let loadedWallet;
 let vendorAddress;
-let signer;
 
-export async function initTransfer(abi) {
-  if (!window.ethereum) {
-    throw new Error("MetaMask not installed");
+async function loadWalletForTransfer() {
+  const fileInput = document.getElementById("keystoreFileTransfer");
+  const pwdInput  = document.getElementById("walletPasswordTransfer");
+
+  if (!fileInput.files.length) {
+    return alert("Please select your keystore JSON file.");
   }
-  const provider = new ethers.BrowserProvider(window.ethereum);
-  await provider.send("eth_requestAccounts", []);
-  signer = await provider.getSigner();
-  transferContract = new ethers.Contract(CONTRACT_ADDRESS, abi, signer);
-  vendorAddress = await transferContract.vendor();
+  const file = fileInput.files[0];
+  const pwd  = pwdInput.value;
+  if (!pwd) {
+    return alert("Enter your wallet password.");
+  }
+
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    try {
+      const json = e.target.result;
+      loadedWallet = await ethers.Wallet.fromEncryptedJson(json, pwd);
+      const provider = new ethers.JsonRpcProvider(RPC_URL);
+      loadedWallet = loadedWallet.connect(provider);
+
+      document.getElementById("transferWalletInfo").innerText =
+        `✅ Loaded wallet: ${loadedWallet.address}`;
+      document.getElementById("transferAmount").disabled = false;
+      document.getElementById("recipientAddress").disabled = false;
+      document.getElementById("transferBtn").disabled = false;
+
+      transferContract = new ethers.Contract(
+        CONTRACT_ADDRESS,
+        window.contractABI,
+        loadedWallet
+      );
+
+      vendorAddress = await transferContract.vendor();
+      document.getElementById("vendorAddressDisplay").innerText = vendorAddress;
+      document.getElementById("returnToVendorBtn").disabled = false;
+      document.getElementById("vendorSection").style.display = "block";
+    } catch (err) {
+      alert("Failed to decrypt keystore: " + err.message);
+    }
+  };
+  reader.readAsText(file);
 }
 
-export async function returnTickets(inputId, statusId, abi) {
-  if (!transferContract || !vendorAddress) {
-    await initTransfer(abi);
-  }
-
-  const amt = parseInt(document.getElementById(inputId).value, 10);
-  if (isNaN(amt) || amt < 1) {
-    return alert("Enter a valid number of tickets");
-  }
-
+async function transferTickets() {
   if (!transferContract) {
-    return alert("Please connect your wallet first.");
+    return alert("Load your wallet first.");
   }
+  const count     = parseInt(document.getElementById("transferAmount").value, 10);
+  const recipient = document.getElementById("recipientAddress").value.trim();
 
-  if (!vendorAddress) {
-    return alert("Vendor address not found on contract.");
+  if (isNaN(count) || count < 1) {
+    return alert("Enter a valid number of tickets.");
   }
-
-  if (!confirm(`Are you sure you want to return ${amt} ticket(s)?`)) {
-    return;
+  if (!ethers.isAddress(recipient)) {
+    return alert("Enter a valid recipient address.");
   }
 
   try {
-    const tx = await transferContract.transfer(vendorAddress, amt);
-    document.getElementById(statusId).innerText = `⏳ Sending… ${tx.hash}`;
+    const tx = await transferContract.transfer(recipient, count);
+    document.getElementById("transferStatus").innerText = `⏳ ${tx.hash}`;
     await tx.wait();
-    document.getElementById(statusId).innerText = "✅ Tickets returned!";
-  } catch (e) {
-    const reason = e.data?.message || e.reason || e.message;
-    alert(`Return error: ${reason}`);
+    document.getElementById("transferStatus").innerText =
+      `✅ Sent ${count} ticket(s) to ${recipient}!`;
+  } catch (err) {
+    alert("Transfer failed: " + (err.reason || err.message));
   }
 }
+
+async function returnToVendor() {
+  if (!transferContract || !vendorAddress) {
+    return alert("Load your wallet first.");
+  }
+  const count = parseInt(document.getElementById("transferAmount").value, 10);
+  if (isNaN(count) || count < 1) {
+    return alert("Enter a valid number of tickets.");
+  }
+
+  try {
+    const tx = await transferContract.transfer(vendorAddress, count);
+    document.getElementById("transferStatus").innerText = `⏳ ${tx.hash}`;
+    await tx.wait();
+    document.getElementById("transferStatus").innerText =
+      `✅ Returned ${count} ticket(s) to vendor!`;
+  } catch (err) {
+    alert("Return to vendor failed: " + (err.reason || err.message));
+  }
+}
+
+export { loadWalletForTransfer, transferTickets, returnToVendor };
