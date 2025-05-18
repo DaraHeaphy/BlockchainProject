@@ -4,10 +4,19 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract TicketToken is ERC20, Ownable {
-    uint256 public ticketPrice;
-    address public vendor;
+    uint256 public immutable ticketPrice;
+    address public immutable vendor;
 
-    event TicketPurchased(address indexed buyer, uint256 amountUsed, uint256 ticketsTransferred);
+    struct Wallet {
+        bytes32 passwordHash;
+        bool exists;
+    }
+    mapping(address => Wallet) private wallets;
+
+    event WalletCreated(address indexed user);
+    event TicketPurchased(address indexed buyer, uint256 amountPaid, uint256 ticketsTransferred);
+    event TicketReturned(address indexed user, uint256 ticketsReturned);
+    event VendorWithdrawal(address indexed vendorAddress, uint256 amount);
 
     constructor(
         uint256 _ticketPrice,
@@ -17,27 +26,49 @@ contract TicketToken is ERC20, Ownable {
         ERC20("TicketToken", "TKT")
         Ownable(msg.sender)
     {
+        require(_ticketPrice > 0, "ticketPrice must be > 0");
+        require(_vendor      != address(0), "Invalid vendor");
+        require(_initialSupply > 0, "initialSupply must be > 0");
+
         ticketPrice = _ticketPrice;
         vendor      = _vendor;
         _mint(address(this), _initialSupply);
     }
 
+    function createWallet(string calldata password) external {
+        require(!wallets[msg.sender].exists, "Already exists");
+        wallets[msg.sender] = Wallet({
+            passwordHash: keccak256(abi.encodePacked(password)),
+            exists:       true
+        });
+        emit WalletCreated(msg.sender);
+    }
+
     function purchaseTicket() external payable {
-        require(msg.value >= ticketPrice, "Insufficient funds");
-        uint256 ticketsToBuy = msg.value / ticketPrice;
-        require(ticketsToBuy > 0, "Need at least one ticket");
-        require(balanceOf(address(this)) >= ticketsToBuy, "Sold out");
+        require(wallets[msg.sender].exists, "No wallet");
+        require(msg.value >= ticketPrice, "Too little ETH");
 
-        uint256 used = ticketsToBuy * ticketPrice;
-        // refund any extra
-        if (msg.value > used) payable(msg.sender).transfer(msg.value - used);
+        uint256 count = msg.value / ticketPrice;
+        require(count > 0, "Must buy >= 1 ticket");
+        require(msg.value % ticketPrice == 0, "Send exact multiples of ticketPrice");
+        require(balanceOf(address(this)) >= count, "Sold out");
 
-        // transfer tokens from pool to buyer
-        _transfer(address(this), msg.sender, ticketsToBuy);
+        _transfer(address(this), msg.sender, count);
+        emit TicketPurchased(msg.sender, msg.value, count);
+    }
 
-        // forward funds
-        payable(vendor).transfer(used);
+    function returnTickets(uint256 count) external {
+        require(wallets[msg.sender].exists, "No wallet");
+        require(balanceOf(msg.sender) >= count,     "Not enough tickets");
 
-        emit TicketPurchased(msg.sender, used, ticketsToBuy);
+        _transfer(msg.sender, address(this), count);
+        emit TicketReturned(msg.sender, count);
+    }
+
+    function withdrawVendor(uint256 amount) external onlyOwner {
+        require(address(this).balance >= amount, "No funds");
+        (bool ok, ) = payable(vendor).call{ value: amount }("");
+        require(ok, "Withdraw failed");
+        emit VendorWithdrawal(vendor, amount);
     }
 }

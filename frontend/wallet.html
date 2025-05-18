@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="contract-address" content="0x1ac131aE1a756687F11B58B891146edb52ABDDeB" />
+  <meta name="rpc-url" content="https://sepolia.infura.io/v3/https://sepolia.infura.io/v3/74ac8b5828754e85b0bcdbab511ba892" />
+  <title>Create Wallet</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <script src="js/abi.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.5/dist/ethers.umd.min.js"></script>
+  <script type="module" src="js/config.js"></script>
+  <script type="module" src="js/wallet.js"></script>
+  <script type="module" src="js/main.js"></script>
+</head>
+<body>
+  <header>
+    <a href="index.html" class="back">← Home</a>
+    <h1>Create Wallet</h1>
+  </header>
+  <div class="section">
+    <label for="newWalletPassword">Password:</label>
+    <input type="password" id="newWalletPassword" placeholder="Enter a password" />
+    <button id="createWalletBtn">Create Wallet</button>
+    <button id="downloadWalletBtn">Download Keystore</button>
+    <pre id="walletDetails"></pre>
+  </div>
+</body>
+</html>

@@ -1,0 +1,960 @@
+File: .\hardhat.config.js
+=========================
+
+require("@nomicfoundation/hardhat-toolbox");
+require("@nomicfoundation/hardhat-ethers");
+require("dotenv").config();
+
+module.exports = {
+  solidity: "0.8.20",
+  networks: {
+    sepolia: {
+      url: process.env.SEPOLIA_RPC_URL,
+      accounts: [process.env.PRIVATE_KEY]
+    }
+  },
+  etherscan: {
+    apiKey: {
+      sepolia: process.env.ETHERSCAN_API_KEY
+    }
+  }
+};
+
+
+
+File: .\frontend\abi.js
+=======================
+
+window.contractABI = [
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_ticketPrice",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "_vendor",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_initialSupply",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "spender",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "allowance",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "needed",
+          "type": "uint256"
+        }
+      ],
+      "name": "ERC20InsufficientAllowance",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "balance",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "needed",
+          "type": "uint256"
+        }
+      ],
+      "name": "ERC20InsufficientBalance",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "approver",
+          "type": "address"
+        }
+      ],
+      "name": "ERC20InvalidApprover",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "receiver",
+          "type": "address"
+        }
+      ],
+      "name": "ERC20InvalidReceiver",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        }
+      ],
+      "name": "ERC20InvalidSender",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "spender",
+          "type": "address"
+        }
+      ],
+      "name": "ERC20InvalidSpender",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnableInvalidOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "OwnableUnauthorizedAccount",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "spender",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "Approval",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "buyer",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amountUsed",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "ticketsTransferred",
+          "type": "uint256"
+        }
+      ],
+      "name": "TicketPurchased",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "Transfer",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "spender",
+          "type": "address"
+        }
+      ],
+      "name": "allowance",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "spender",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "approve",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "balanceOf",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "decimals",
+      "outputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "name",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "purchaseTicket",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "renounceOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "symbol",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "ticketPrice",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "totalSupply",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "transfer",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "transferFrom",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "vendor",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        { "internalType": "string", "name": "password", "type": "string" }
+      ],
+      "name": "createWallet",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        { "internalType": "string", "name": "password", "type": "string" }
+      ],
+      "name": "checkBalance",
+      "outputs": [
+        { "internalType": "uint256", "name": "", "type": "uint256" }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ];
+
+
+File: .\frontend\index.html
+===========================
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dara's Ticketing App</title>
+  <script src="./abi.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.5/dist/ethers.umd.min.js"></script>
+  <style>
+    body {
+      background-color: #121212;
+      color: #e0e0e0;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      line-height: 1.6;
+    }
+
+    h1, h2 {
+      color: #ffffff;
+    }
+
+    nav {
+      margin-bottom: 20px;
+    }
+
+    nav button {
+      background-color: #333333;
+      color: #e0e0e0;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 15px;
+      margin: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    nav button:hover {
+      background-color: #444444;
+    }
+
+    .section {
+      display: none;
+      background-color: #1e1e1e;
+      border-radius: 5px;
+      padding: 20px;
+      margin-top: 20px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    }
+
+    .active {
+      display: block;
+    }
+
+    input {
+      width: 100%;
+      max-width: 400px;
+      background-color: #2a2a2a;
+      border: 1px solid #444444;
+      border-radius: 4px;
+      color: #e0e0e0;
+      padding: 8px;
+      margin: 5px 0;
+      font-size: 1rem;
+    }
+
+    button {
+      font-size: 1rem;
+      background-color: #333333;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 15px;
+      color: #e0e0e0;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #444444;
+    }
+
+    pre {
+      background-color: #1e1e1e;
+      border: 1px solid #444444;
+      border-radius: 5px;
+      padding: 15px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+  </style>
+</head>
+<body>
+  <h1>Dara's Ticketing App</h1>
+  <nav>
+    <button onclick="showSection('walletCreation')">Wallet Creation</button>
+    <button onclick="showSection('balanceCheck')">Balance Check</button>
+    <button onclick="showSection('ticketPurchase')">Ticket Purchase</button>
+    <button onclick="showSection('ticketTransfer')">Ticket Transfer</button>
+    <button onclick="showSection('doormanCheck')">Doorman Check</button>
+    <button onclick="showSection('remainingCheck')">Tickets Remaining</button>
+  </nav>
+
+  <div id="walletCreation" class="section active">
+    <h2>Create a Wallet</h2>
+    <label for="newWalletPassword">Password:</label>
+    <input type="password" id="newWalletPassword" placeholder="Enter a password" />
+    <button onclick="createWallet()">Create Wallet</button>
+    <pre id="walletDetails"></pre>
+  </div>
+
+  <div id="balanceCheck" class="section">
+    <h2>Balance Check</h2>
+    <button onclick="connectWallet()">Connect Wallet</button>
+    <label for="checkPassword">Password:</label>
+    <input type="password" id="checkPassword" placeholder="Enter your password" />
+    <button onclick="checkBalance()">Check Balance</button>
+    <pre id="balances"></pre>
+  </div>
+
+  <div id="ticketPurchase" class="section">
+    <h2>Ticket Purchase</h2>
+    <label for="purchaseAmount">Number of tickets to buy (1–10):</label>
+    <input type="number" id="purchaseAmount" min="1" max="10" value="1" />
+    <button onclick="purchaseTicket()">Purchase Tickets (0.001 SETH)</button>
+    <pre id="purchaseStatus"></pre>
+  </div>
+
+  <div id="ticketTransfer" class="section">
+    <h2>Ticket Transfer</h2>
+    <label for="returnAmount">Tickets to return (max 5):</label>
+    <input type="number" id="returnAmount" min="1" max="5" value="1" />
+    <button onclick="returnTickets()">Return Tickets</button>
+    <pre id="transferStatus"></pre>
+  </div>
+
+  <div id="doormanCheck" class="section">
+    <h2>Doorman Check</h2>
+    <input type="text" id="doormanWalletAddress" placeholder="Enter wallet address" size="50" />
+    <br>
+    <button onclick="checkTicketBalance()">Check Ticket Balance</button>
+    <pre id="doormanStatus"></pre>
+  </div>
+
+  <div id="remainingCheck" class="section">
+    <h2>Tickets Remaining in Contract (For Development Purposes)</h2>
+    <button onclick="showRemaining()">Check Remaining Tickets</button>
+    <pre id="remainingStatus"></pre>
+  </div>
+
+  <script>
+    let wallet, provider, signer, contract, vendorAddress;
+    const contractAddress = "0x4eA48CD6B7B94e833B8C7eC6Fd98E9c4ea6d6bD9";
+
+    const contractABI = window.contractABI;
+
+    function showSection(id) {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    async function createWallet() {
+        const pwd = document.getElementById('newWalletPassword').value;
+        if (!pwd) return alert('Please enter a password');
+        await connectWallet();
+        const tx = await contract.createWallet(pwd);
+        await tx.wait();
+        alert('Wallet created on-chain!');
+    }
+
+    async function downloadWallet() {
+      if (!wallet) return alert('Create a wallet first.');
+      const json = await wallet.encrypt('password');
+      const blob = new Blob([json], { type: 'application/json' });
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'wallet.json'; a.click();
+    }
+
+    async function connectWallet(){
+    if (!window.ethereum) return alert('MetaMask not installed');
+    provider = new ethers.BrowserProvider(window.ethereum);
+    await provider.send('eth_requestAccounts', []);
+    signer   = await provider.getSigner();
+    contract = new ethers.Contract(contractAddress, contractABI, signer);
+    vendorAddress = await contract.vendor();
+    await checkBalance();
+  }
+
+  async function checkBalance() {
+    if (!contract) return alert('Connect wallet first');
+    const pwd = document.getElementById('checkPassword').value;
+    if (!pwd) return alert('Please enter your password');
+    try {
+        const bal = await contract.checkBalance(pwd);
+        document.getElementById('balances').innerText =
+        `Your ticket balance: ${bal.toString()}`;
+    } catch (e) {
+        alert('Error: ' + (e.data?.message || e.message));
+    }
+    }
+    async function purchaseTicket() {
+      if (!contract) await connectWallet();
+      const count = parseInt(document.getElementById('purchaseAmount').value, 10);
+      if (isNaN(count) || count < 1 || count > 10) {
+        return alert('Please enter a number of tickets between 1 and 10');
+      }
+      try {
+        const pricePer = await contract.ticketPrice();
+        const totalCost = pricePer * BigInt(count);
+        console.log(`Buying ${count} tickets; total cost wei: ${totalCost}`);
+        const tx = await contract.purchaseTicket({ value: totalCost });
+        document.getElementById('purchaseStatus').innerText = `Transaction sent: ${tx.hash}`;
+        await tx.wait();
+        document.getElementById('purchaseStatus').innerText = `Successfully purchased ${count} ticket(s)!`;
+      } catch (e) {
+        console.error('purchaseTicket error:', e);
+        alert('Purchase error: ' + e.message);
+      }
+    }
+
+    async function returnTickets() {
+      if (!contract) await connectWallet();
+      const amt = parseInt(document.getElementById('returnAmount').value);
+      if (amt < 1 || amt > 5) return alert('Enter 1–5 tickets');
+      try {
+        const tx = await contract.transfer(vendorAddress, amt);
+        document.getElementById('transferStatus').innerText = `Sent: ${tx.hash}`;
+        await tx.wait();
+        document.getElementById('transferStatus').innerText = 'Tickets returned!';
+      } catch (e) {
+        alert('Return error: ' + e.message);
+      }
+    }
+
+    async function checkTicketBalance() {
+      if (!contract) await connectWallet();
+      const addr = document.getElementById('doormanWalletAddress').value;
+      if (!addr) return alert('Enter an address');
+      try {
+        const bal = await contract.balanceOf(addr);
+        document.getElementById('doormanStatus').innerText = `Tickets: ${bal}`;
+      } catch (e) {
+        alert('Check error: ' + e.message);
+      }
+    }
+
+    async function showRemaining() {
+      if (!contract) await connectWallet();
+      const rem = await contract.balanceOf(contractAddress);
+      document.getElementById('remainingStatus').innerText = `Tickets remaining: ${rem.toString()}`;
+    }
+  </script>
+</body>
+</html>
+
+
+File: .\ignition\modules\Lock.js
+================================
+
+// This setup uses Hardhat Ignition to manage smart contract deployments.
+// Learn more about it at https://hardhat.org/ignition
+
+const { buildModule } = require("@nomicfoundation/hardhat-ignition/modules");
+
+const JAN_1ST_2030 = 1893456000;
+const ONE_GWEI = 1_000_000_000n;
+
+module.exports = buildModule("LockModule", (m) => {
+  const unlockTime = m.getParameter("unlockTime", JAN_1ST_2030);
+  const lockedAmount = m.getParameter("lockedAmount", ONE_GWEI);
+
+  const lock = m.contract("Lock", [unlockTime], {
+    value: lockedAmount,
+  });
+
+  return { lock };
+});
+
+
+
+File: .\scripts\deploy.js
+=========================
+
+const { ethers } = require("hardhat");
+require("dotenv").config();
+
+async function main() {
+  const [deployer] = await ethers.getSigners();
+  console.log("Deploying contracts with the account:", deployer.address);
+
+  const vendorAddress   = process.env.VENDOR_ADDRESS;
+  const ticketPriceEth  = process.env.TICKET_PRICE_ETH   || "0.001";
+  const initialSupply   = parseInt(process.env.INITIAL_SUPPLY || "1000", 10);
+
+  console.log("Vendor address:    ", vendorAddress);
+  console.log("Ticket price (ETH):", ticketPriceEth);
+  console.log("Initial supply:    ", initialSupply);
+
+  const ticketPrice = ethers.parseEther(ticketPriceEth);
+
+  const TicketToken = await ethers.getContractFactory("TicketToken");
+  const ticketToken = await TicketToken.deploy(
+    ticketPrice,
+    vendorAddress,
+    initialSupply
+  );
+
+  console.log("Deployment tx hash:", ticketToken.deploymentTransaction().hash);
+  await ticketToken.waitForDeployment();
+  console.log("TicketToken deployed to:", ticketToken.target);
+}
+
+main()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
+
+
+
+File: .\test\TicketToken.js
+===========================
+
+const { expect } = require("chai");
+const { ethers } = require("hardhat");
+
+describe("TicketToken", function () {
+  let ticketToken, owner, vendor, buyer;
+  const ticketPrice = ethers.parseEther("0.01");
+
+  beforeEach(async function () {
+    [owner, vendor, buyer] = await ethers.getSigners();
+    const TicketToken = await ethers.getContractFactory("TicketToken", owner);
+    ticketToken = await TicketToken.deploy(ticketPrice, vendor.address);
+    await ticketToken.waitForDeployment();
+  });
+
+  it("should initialize with correct values", async function () {
+    expect(await ticketToken.ticketPrice()).to.equal(ticketPrice);
+    expect(await ticketToken.vendor()).to.equal(vendor.address);
+    expect(await ticketToken.name()).to.equal("TicketToken");
+    expect(await ticketToken.symbol()).to.equal("TKT");
+  });
+
+  it("should revert purchaseTicket if sent funds are insufficient", async function () {
+    const insufficientAmount = ethers.parseEther("0.005");
+    await expect(
+      ticketToken.connect(buyer).purchaseTicket({ value: insufficientAmount })
+    ).to.be.revertedWith("Insufficient funds for a ticket");
+  });
+
+  it("should mint correct number of tickets when exact amount is sent", async function () {
+    // buyer sends exactly 0.03 ETH, expecting 3 tickets minted
+    const amountSent = ticketPrice * 3n; // big int multiplication
+    const tx = await ticketToken.connect(buyer).purchaseTicket({ value: amountSent });
+    const receipt = await tx.wait();
+
+    // checks that the buyer's balance reflects 3 tickets
+    const ticketsMinted = await ticketToken.balanceOf(buyer.address);
+    expect(ticketsMinted).to.equal(3);
+
+    // decodes the logs manually to find the "TicketPurchased" event
+    const events = receipt.logs
+      .map((log) => {
+        try {
+          return ticketToken.interface.parseLog(log);
+        } catch (error) {
+          return null;
+        }
+      })
+      .filter((event) => event !== null);
+    const event = events.find((e) => e.name === "TicketPurchased");
+    expect(event.args.buyer).to.equal(buyer.address);
+    expect(event.args.amountUsed).to.equal(amountSent);
+    expect(event.args.ticketsMinted).to.equal(3);
+  });
+
+  it("should refund any excess funds if overpaid", async function () {
+    const amountSent = ethers.parseEther("0.035");
+    const expectedTickets = 3;
+    const expectedUsedAmount = ticketPrice * BigInt(expectedTickets);
+
+    // gets buyer's balance before the transaction
+    const buyerInitialBalance = await ethers.provider.getBalance(buyer.address);
+    const tx = await ticketToken.connect(buyer).purchaseTicket({ value: amountSent });
+    const receipt = await tx.wait();
+    // calculate gas cost
+    const gasUsed = receipt.gasUsed * tx.gasPrice;
+
+    // checks that the correct number of tickets are minted
+    const ticketsMinted = await ticketToken.balanceOf(buyer.address);
+    expect(ticketsMinted).to.equal(expectedTickets);
+
+    // calculates the expected balance after purchase
+    const expectedBalance = buyerInitialBalance - expectedUsedAmount - gasUsed;
+    // allows for a small tolerance (0.001 ETH) for minor discrepancies
+    const tolerance = ethers.parseEther("0.001");
+    const buyerFinalBalance = await ethers.provider.getBalance(buyer.address);
+    expect(buyerFinalBalance).to.be.within(expectedBalance - tolerance, expectedBalance + tolerance);
+
+    // decodes the logs manually to find the "TicketPurchased" event
+    const events = receipt.logs
+      .map((log) => {
+        try {
+          return ticketToken.interface.parseLog(log);
+        } catch (error) {
+          return null;
+        }
+      })
+      .filter((event) => event !== null);
+    const event = events.find((e) => e.name === "TicketPurchased");
+    expect(event.args.buyer).to.equal(buyer.address);
+    expect(event.args.amountUsed).to.equal(expectedUsedAmount);
+    expect(event.args.ticketsMinted).to.equal(expectedTickets);
+  });
+
+  it("should transfer the used funds to the vendor", async function () {
+    // buyer sends funds for 2 tickets.
+    const amountSent = ticketPrice * 2n;
+    const vendorInitialBalance = await ethers.provider.getBalance(vendor.address);
+
+    await ticketToken.connect(buyer).purchaseTicket({ value: amountSent });
+    const vendorFinalBalance = await ethers.provider.getBalance(vendor.address);
+    expect(vendorFinalBalance - vendorInitialBalance).to.equal(amountSent);
+  });
+});
+
+
+
+File: .\walletdecryption\decrypt.js
+===================================
+
+const fs = require('fs');
+const { ethers } = require("ethers");
+
+async function getPrivateKey() {
+  const json = fs.readFileSync("wallet.json", "utf8");
+  const decryptedWallet = await ethers.Wallet.fromEncryptedJson(json, "password");
+  console.log("Private Key:", decryptedWallet.privateKey);
+}
+
+getPrivateKey();
+
+
+
