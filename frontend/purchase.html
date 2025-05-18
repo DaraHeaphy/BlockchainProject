@@ -4,37 +4,87 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="contract-address" content="0x1ac131aE1a756687F11B58B891146edb52ABDDeB" />
-  <meta name="rpc-url" content="https://sepolia.infura.io/v3/https://sepolia.infura.io/v3/74ac8b5828754e85b0bcdbab511ba892" />
+  <meta name="rpc-url" content="https://sepolia.infura.io/v3/74ac8b5828754e85b0bcdbab511ba892" />
   <title>Purchase Tickets</title>
   <link rel="stylesheet" href="css/styles.css" />
-  <script src="js/abi.js"></script>
+  <script src="https://unpkg.com/feather-icons"></script>
   <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.5/dist/ethers.umd.min.js"></script>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="container nav-container">
+      <h1 class="logo">Dara’s Ticketing App</h1>
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="purchase.html">Purchase Tickets</a>
+        <a href="wallet.html">Create Wallet</a>
+        <a href="balance.html">Check Balances</a>
+        <a href="transfer.html">Transfer Tickets</a>
+        <a href="remaining.html">Tickets Remaining</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+    <div class="section">
+      <h1>Purchase Tickets</h1>
+
+      <h2>Load Keystore</h2>
+      <label for="keystoreFile">Keystore JSON:</label>
+      <input type="file" id="keystoreFile" accept=".json" />
+      <label for="walletPassword">Password:</label>
+      <input type="password" id="walletPassword" placeholder="••••••••" />
+
+      <button id="loadWalletBtn" class="btn-secondary">
+        <i data-feather="unlock"></i>
+        Load Wallet
+      </button>
+
+      <textarea
+        id="walletInfo"
+        class="balances-box"
+        readonly
+        rows="3"
+        placeholder="✅ Loaded wallet info will appear here"
+      ></textarea>
+
+      <hr />
+
+      <h2>Buy Tickets</h2>
+      <label for="purchaseAmount">Tickets (1–10):</label>
+      <input
+        type="number"
+        id="purchaseAmount"
+        min="1"
+        max="10"
+        value="1"
+        disabled
+      />
+      <button id="purchaseBtn" class="btn-primary" disabled>
+        <i data-feather="shopping-cart"></i>
+        Purchase
+      </button>
+
+      <textarea
+        id="purchaseStatus"
+        class="balances-box"
+        readonly
+        rows="3"
+        placeholder="⏳ Purchase status will appear here"
+      ></textarea>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2025 Dara’s Ticketing App</p>
+    </div>
+  </footer>
+
+  <script>feather.replace();</script>
+  <script src="js/abi.js"></script>
   <script type="module" src="js/config.js"></script>
   <script type="module" src="js/purchase.js"></script>
   <script type="module" src="js/main.js"></script>
-</head>
-<body>
-  <header>
-    <a href="index.html" class="back">← Home</a>
-    <h1>Purchase Tickets</h1>
-  </header>
-  <div class="section">
-    <label for="keystoreFile">Keystore JSON:</label>
-    <input type="file" id="keystoreFile" accept=".json" />
-
-    <label for="walletPassword">Wallet Password:</label>
-    <input type="password" id="walletPassword" placeholder="Enter your password" />
-
-    <button id="loadWalletBtn">Load Wallet</button>
-    <pre id="walletInfo"></pre>
-
-    <hr />
-
-    <label for="purchaseAmount">Tickets (1–10):</label>
-    <input type="number" id="purchaseAmount" min="1" max="10" value="1" disabled />
-
-    <button id="purchaseBtn" disabled>Purchase</button>
-    <pre id="purchaseStatus"></pre>
-  </div>
 </body>
 </html>

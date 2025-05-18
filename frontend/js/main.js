@@ -1,67 +1,50 @@
-import { createWallet, downloadWalletBtn } from "./wallet.js";
-import { loadWallet, purchaseTicket }     from "./purchase.js";
-import { loadWalletForTransfer, transferTickets, returnToVendor } from "./transfer.js";
-import { initBalance, checkBalance, loadBalanceWallet } from "./balance.js";
-import { showRemaining }                  from "./remaining.js";
+import { createWallet, downloadWalletBtn }       from "./wallet.js";
+import { loadWallet, purchaseTicket }           from "./purchase.js";
+import { loadWalletForTransfer, returnToVendor } from "./transfer.js";
+import { initBalance, loadBalanceWallet }       from "./balance.js";
+import { showRemaining }                        from "./remaining.js";
 
 const abi = window.contractABI;
 
 window.addEventListener("DOMContentLoaded", () => {
-  if (document.getElementById("createWalletBtn")) {
-    document
-      .getElementById("createWalletBtn")
-      .addEventListener("click", () =>
-        createWallet("newWalletPassword", "walletDetails")
-      );
+  const createBtn = document.getElementById("createWalletBtn");
+  if (createBtn) {
+    createBtn.addEventListener("click", () => createWallet("newWalletPassword"));
     document
       .getElementById("downloadWalletBtn")
-      .addEventListener("click", () => downloadWalletBtn());
+      .addEventListener("click", downloadWalletBtn);
   }
 
-  if (document.getElementById("loadWalletBtn")) {
-    document
-      .getElementById("loadWalletBtn")
-      .addEventListener("click", loadWallet);
+  const loadPurchaseBtn = document.getElementById("loadWalletBtn");
+  if (loadPurchaseBtn) {
+    loadPurchaseBtn.addEventListener("click", loadWallet);
     document
       .getElementById("purchaseBtn")
       .addEventListener("click", purchaseTicket);
   }
 
-  if (document.getElementById("loadTransferWalletBtn")) {
-    document
-      .getElementById("loadTransferWalletBtn")
-      .addEventListener("click", loadWalletForTransfer);
-    document
-      .getElementById("transferBtn")
-      .addEventListener("click", transferTickets);
+  const loadTransferBtn = document.getElementById("loadTransferWalletBtn");
+  if (loadTransferBtn) {
+    loadTransferBtn.addEventListener("click", loadWalletForTransfer);
     document
       .getElementById("returnToVendorBtn")
       .addEventListener("click", returnToVendor);
   }
 
-  if (document.getElementById("checkBalanceBtn")) {
+  const loadBalanceBtn = document.getElementById("loadBalanceWalletBtn");
+  if (loadBalanceBtn) {
     initBalance(abi);
-    document
-      .getElementById("checkBalanceBtn")
-      .addEventListener("click", () =>
-        checkBalance("manualAddress", "balances")
-      );
-    document
-      .getElementById("loadBalanceWalletBtn")
-      .addEventListener("click", () =>
-        loadBalanceWallet(
-          "keystoreFileBalance",
-          "walletPasswordBalance",
-          "balances"
-        )
-      );
+    loadBalanceBtn.addEventListener("click", () =>
+      loadBalanceWallet(
+        "keystoreFileBalance",
+        "walletPasswordBalance",
+        "balances"
+      )
+    );
   }
 
-  if (document.getElementById("remainingBtn")) {
-    document
-      .getElementById("remainingBtn")
-      .addEventListener("click", () =>
-        showRemaining("balances", abi)
-      );
+  const remainingBtn = document.getElementById("remainingBtn");
+  if (remainingBtn) {
+    remainingBtn.addEventListener("click", () => showRemaining("balances", abi));
   }
 });

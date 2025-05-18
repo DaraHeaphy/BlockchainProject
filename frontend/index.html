@@ -3,39 +3,62 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Dara's Ticketing App</title>
+  <title>Dara’s Ticketing App</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/feather-icons"></script>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.5/dist/ethers.umd.min.js"></script>
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
-  <header>
-    <h1 class="logo">Dara’s Ticketing App</h1>
-  </header>
+  <nav class="navbar">
+    <div class="container nav-container">
+      <h1 class="logo">Dara’s Ticketing App</h1>
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="wallet.html">Create Wallet</a>
+        <a href="balance.html">Check Balances</a>
+        <a href="purchase.html">Purchase Tickets</a>
+        <a href="transfer.html">Transfer Tickets</a>
+        <a href="remaining.html">Tickets Remaining</a>
+      </div>
+    </div>
+  </nav>
 
-  <nav class="home-nav">
+  <main class="container grid-cards">
     <a href="wallet.html" class="card">
+      <i data-feather="key"></i>
       <h2>Create Wallet</h2>
-      <p>Generate a new Ethereum keystore-protected wallet and download the JSON file.</p>
+      <p>Generate a new Ethereum keystore-protected wallet.</p>
     </a>
     <a href="balance.html" class="card">
+      <i data-feather="bar-chart-2"></i>
       <h2>Check Balances</h2>
-      <p>View your Sepolia SETH and ticket-token balances for any address.</p>
+      <p>View your SETH and ticket balances.</p>
     </a>
     <a href="purchase.html" class="card">
+      <i data-feather="shopping-cart"></i>
       <h2>Purchase Tickets</h2>
-      <p>Upload your keystore, decrypt it, and buy 1–10 tickets in a single transaction.</p>
+      <p>Buy 1–10 tickets in a single transaction.</p>
     </a>
     <a href="transfer.html" class="card">
+      <i data-feather="send"></i>
       <h2>Transfer Tickets</h2>
-      <p>Upload your keystore, decrypt it, and send tickets to another address.</p>
-    </a>
-    <a href="doorman.html" class="card">
-      <h2>Doorman Check</h2>
-      <p>Confirm that an attendee’s wallet holds at least one valid ticket.</p>
+      <p>Send tickets to another address.</p>
     </a>
     <a href="remaining.html" class="card">
+      <i data-feather="clock"></i>
       <h2>Tickets Remaining</h2>
-      <p>See how many tickets the contract still holds (for development).</p>
+      <p>See how many tickets are left.</p>
     </a>
-  </nav>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2025 Dara’s Ticketing App</p>
+    </div>
+  </footer>
+
+  <script>feather.replace();</script>
 </body>
 </html>

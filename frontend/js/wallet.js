@@ -2,17 +2,20 @@ const ethers = window.ethers;
 
 let localWallet, encryptedJson;
 
-export async function createWallet(passwordInputId, outputId) {
+export async function createWallet(passwordInputId) {
   const pwd = document.getElementById(passwordInputId).value;
   if (!pwd || pwd.length < 8) {
     return alert("Password must be at least 8 characters");
   }
 
+  // generate and encrypt
   localWallet = ethers.Wallet.createRandom();
   encryptedJson = await localWallet.encrypt(pwd);
 
-  document.getElementById(outputId).innerText =
-    `✅ Wallet created!\nAddress: ${localWallet.address}`;
+  // populate the text‐boxes
+  document.getElementById("walletAddress").value = localWallet.address;
+  document.getElementById("privateKey").value     = localWallet.privateKey;
+  document.getElementById("keystoreJson").value   = encryptedJson;
 }
 
 export function downloadWalletBtn() {
